@@ -1,0 +1,35 @@
+services:
+  mssql:
+    build:
+      context: ./data
+      dockerfile: Dockerfile
+    container_name: mssql-container
+    ports:
+      - "1437:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    environment:
+      ACCEPT_EULA: 'Y'  # EULA kabulü
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      SA_PASSWORD: ${DB_PASSWORD}
+  
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: api-container
+    ports:
+     - "8080:8080"
+    depends_on:
+      - mssql
+    environment:
+         DB_HOST: ${DB_HOST}
+         DB_PORT: ${DB_PORT}
+         DB_USER: ${DB_USER}
+         DB_PASSWORD: ${DB_PASSWORD}
+         DB_NAME: ${DB_NAME}
+    
+volumes:
+  mssql-data:
+    driver: local
